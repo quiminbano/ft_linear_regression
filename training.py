@@ -22,6 +22,7 @@ def set_regression_plot(thetas, km, price, object):
     object.plot(km, price_predicted, color="red", label="Predicted price")
     object.legend()
 
+
 def get_corrected_thetas(prev_thetas, Xmin, Xmax):
     Ymin = prev_thetas[0]
     Ymax = prev_thetas[0] + prev_thetas[1]
