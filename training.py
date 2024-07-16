@@ -1,7 +1,26 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 from pandas.errors import EmptyDataError
 from pandas.errors import ParserError
 
+
+def set_cost_plot(cost, iter, object):
+    n_cycles = list(range(1, iter + 1))
+    object.scatter(n_cycles, cost)
+    object.set_title("Error cost vs Number of iterations cycles")
+    object.set_xlabel("Number of iteration cycles")
+    object.set_ylabel("Error cost (a.u$^{2}$)")
+    object.plot(n_cycles, cost)
+
+
+def set_regression_plot(thetas, km, price, object):
+    price_predicted = thetas[0] + (thetas[1] * km)
+    object.scatter(x=km, y=price, label="Real price")
+    object.set_title("Price vs mileage")
+    object.set_xlabel("Mileage (km)")
+    object.set_ylabel("Price (a.u)")
+    object.plot(km, price_predicted, color="red", label="Predicted price")
+    object.legend()
 
 def get_corrected_thetas(prev_thetas, Xmin, Xmax):
     Ymin = prev_thetas[0]
@@ -14,17 +33,24 @@ def get_corrected_thetas(prev_thetas, Xmin, Xmax):
 def get_coeficients(km_x, price_y, iter):
     m = price_y.size
     learning_rate = 0.1
-    theta0 = 0
-    theta1 = 0
+    temp_theta0 = 0
+    temp_theta1 = 0
+    cost_history = list(range(0, iter))
+    thetas = [0, 0]
     for i in range(0, iter):
-        y_predicted = theta0 + (theta1 * km_x)
+        y_predicted = thetas[0] + (thetas[1] * km_x)
         delta_err = y_predicted - price_y
-        theta0 -= learning_rate * ((sum(delta_err) / m))
-        theta1 -= learning_rate * ((sum(delta_err * km_x) / m))
-    return [theta0, theta1]
+        cost_history[i] = (((sum(delta_err) * -1) ** 2) / (2 * m))
+        temp_theta0 = learning_rate * ((sum(delta_err) / m))
+        temp_theta1 = learning_rate * ((sum(delta_err * km_x) / m))
+        thetas[0] -= temp_theta0
+        thetas[1] -= temp_theta1
+    return thetas, cost_history
 
 
 def normalize_array(array):
+    if (max(array) - min(array) == 0):
+        raise ZeroDivisionError("The data provided in the dataset is invalid.")
     temp = (array - min(array)) / (max(array) - min(array))
     return temp
 
@@ -32,17 +58,25 @@ def normalize_array(array):
 def main():
     try:
         data_set = pd.read_csv("data.csv")
+        price_y = data_set["price"].values
+        km_x = data_set["km"].values
+        normalized_x = normalize_array(km_x)
     except (FileNotFoundError, EmptyDataError, ParserError,
-            PermissionError) as e:
+            PermissionError, ZeroDivisionError) as e:
         print(e)
         exit(1)
-    price_y = data_set["price"].values
-    km_x = data_set["km"].values
-    normalized_x = normalize_array(km_x)
-    prev_thetas = get_coeficients(km_x=normalized_x,
-                             price_y=price_y, iter=1000)
+    prev_thetas, cost_history = get_coeficients(km_x=normalized_x,
+                                                price_y=price_y, iter=1000)
     corrected_thetas = get_corrected_thetas(prev_thetas, min(km_x), max(km_x))
-    print(corrected_thetas[0], corrected_thetas[1])
+    theta0 = corrected_thetas[0]
+    theta1 = corrected_thetas[1]
+    print(f"The value of theta0 is {theta0} \
+and the value of theta1 is {theta1}")
+    fig, graph_objects = (plt.subplots(1, 2, figsize=(13, 5)))
+    fig.subplots_adjust(wspace=0.5)
+    set_regression_plot(corrected_thetas, km_x, price_y, graph_objects[0])
+    set_cost_plot(cost_history, 1000, graph_objects[1])
+    plt.show()
 
 
 if __name__ == '__main__':

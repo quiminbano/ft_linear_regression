@@ -1,14 +1,13 @@
 
 
 def main():
-    theta0 = float(0)
-    theta1 = float(0)
     try:
         number = float(input("Enter a value of mileage \
 to calculate the price:\n"))
+        theta0 = float(input("Enter a value of theta0:\n"))
+        theta1 = float(input("Now, enter a value of theta1:\n"))
         result = theta0 + (theta1 * number)
-        if number != number or result != result:
-            raise AssertionError("An error ocurred during the calculation.")
+        assert result == result, "An error ocurred during the calculation."
     except (EOFError, ValueError, OverflowError, AssertionError) as e:
         print(e)
         exit(1)
