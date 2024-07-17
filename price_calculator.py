@@ -1,12 +1,21 @@
+from read_file_thetas import get_thetas
+
+def get_numbers():
+    try:
+        print("Please, introduce the value of mileage to predict the price:")
+        number = float(input(""))
+    except EOFError:
+        raise EOFError("Aborted mission!! Thanks for using the program.")
+    except (ValueError, OverflowError):
+        raise ValueError("The input introduced is invalid!!")
+    return number
 
 
 def main():
     try:
-        number = float(input("Enter a value of mileage \
-to calculate the price:\n"))
-        theta0 = float(input("Enter a value of theta0:\n"))
-        theta1 = float(input("Now, enter a value of theta1:\n"))
-        result = theta0 + (theta1 * number)
+        number = get_numbers()
+        thetas = get_thetas()
+        result = thetas[0] + (thetas[1] * number)
         assert result == result, "An error ocurred during the calculation."
     except (EOFError, ValueError, OverflowError, AssertionError) as e:
         print(e)

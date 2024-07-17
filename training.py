@@ -77,6 +77,9 @@ and the value of theta1 is {theta1}")
     fig.subplots_adjust(wspace=0.5)
     set_regression_plot(corrected_thetas, km_x, price_y, graph_objects[0])
     set_cost_plot(cost_history, 1000, graph_objects[1])
+    file = open("result_thetas.txt", "w")
+    file.write(f"{theta0},{theta1}")
+    file.close()
     plt.show()
 
 

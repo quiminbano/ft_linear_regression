@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from pandas.errors import EmptyDataError
 from pandas.errors import ParserError
+from read_file_thetas import get_thetas
 
 
 def get_R2(price_y, y_predicted):
@@ -17,16 +18,17 @@ def main():
         data_set = pd.read_csv("data.csv")
         price_y = data_set["price"].values
         km_x = data_set["km"].values
-        theta0 = float(input("Enter the value of theta0:\n"))
-        theta1 = float(input("Now, enter the value of theta1:\n"))
-        y_predicted = theta0 + (theta1 * km_x)
+        thetas = get_thetas()
+        y_predicted = thetas[0] + (thetas[1] * km_x)
         assert np.all(np.isfinite(y_predicted)), "An error ocurred \
 doing the calculations"
         data_ammount = price_y.size
         mse = (sum((price_y - y_predicted) ** 2) / data_ammount)
         rmse = (mse ** 0.5)
         r2 = get_R2(price_y, y_predicted)
-        print(f"Value of r2: {r2}")
+        print(f"Value of mean squared error (mse): {mse}")
+        print(f"Value of mean squared error (rmse): {rmse}")
+        print(f"Value of correlation coefficient (r2): {r2}")
     except (FileNotFoundError, EmptyDataError, ParserError,
             PermissionError, ValueError, OverflowError,
             AssertionError, EOFError) as e:
