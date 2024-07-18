@@ -8,7 +8,10 @@ def get_R2(price_y, y_predicted):
     mean_y = (sum(price_y) / size)
     ssr = sum((price_y - y_predicted) ** 2)
     sst = sum((price_y - mean_y) ** 2)
-    r2 = (1 - (ssr / sst))
+    try:
+        r2 = (1 - (ssr / sst))
+    except ZeroDivisionError:
+        raise AssertionError("An error ocurred doing the calculations")
     return r2
 
 
