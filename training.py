@@ -1,7 +1,6 @@
-import pandas as pd
 import matplotlib.pyplot as plt
-from pandas.errors import EmptyDataError
-from pandas.errors import ParserError
+import numpy as np
+from utils.open_database import open_database
 
 
 def set_cost_plot(cost, iter, object):
@@ -36,8 +35,8 @@ def get_coeficients(km_x, price_y, iter):
     learning_rate = 0.1
     temp_theta0 = 0
     temp_theta1 = 0
-    cost_history = list(range(0, iter))
-    thetas = [0, 0]
+    cost_history = np.zeros(iter)
+    thetas = np.zeros(2)
     for i in range(0, iter):
         y_predicted = thetas[0] + (thetas[1] * km_x)
         delta_err = y_predicted - price_y
@@ -46,7 +45,9 @@ def get_coeficients(km_x, price_y, iter):
         temp_theta1 = learning_rate * ((sum(delta_err * km_x) / m))
         thetas[0] -= temp_theta0
         thetas[1] -= temp_theta1
-    return thetas, cost_history
+        assert np.all(np.isfinite(cost_history)), "Error processing the data!"
+        assert np.all(np.isfinite(thetas)), "Error processing the data!"
+    return thetas.tolist(), cost_history.tolist()
 
 
 def normalize_array(array):
@@ -58,16 +59,13 @@ def normalize_array(array):
 
 def main():
     try:
-        data_set = pd.read_csv("data.csv")
-        price_y = data_set["price"].values
-        km_x = data_set["km"].values
+        km_x, price_y = open_database()
         normalized_x = normalize_array(km_x)
-    except (FileNotFoundError, EmptyDataError, ParserError,
-            PermissionError, ZeroDivisionError) as e:
+        prev_thetas, cost_history = get_coeficients(km_x=normalized_x,
+                                                    price_y=price_y, iter=1000)
+    except (AssertionError, ZeroDivisionError) as e:
         print(e)
         exit(1)
-    prev_thetas, cost_history = get_coeficients(km_x=normalized_x,
-                                                price_y=price_y, iter=1000)
     corrected_thetas = get_corrected_thetas(prev_thetas, min(km_x), max(km_x))
     theta0 = corrected_thetas[0]
     theta1 = corrected_thetas[1]

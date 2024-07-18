@@ -5,7 +5,7 @@ def get_thetas():
     except FileNotFoundError:
         return thetas
     except PermissionError:
-        raise PermissionError("The program doesn't have the permissions to \
+        raise AssertionError("The program doesn't have the permissions to \
 open the file")
     document = file.read()
     file.close()
