@@ -8,16 +8,20 @@ def get_R2(price_y, y_predicted):
     mean_y = (sum(price_y) / size)
     ssr = sum((price_y - y_predicted) ** 2)
     sst = sum((price_y - mean_y) ** 2)
-    try:
+    if sst != 0:
         r2 = (1 - (ssr / sst))
-    except ZeroDivisionError:
-        raise AssertionError("An error ocurred doing the calculations")
+    else:
+        assert sum(price_y) == mean_y * size, "An error ocurred doing the \
+calculations"
+        r2 = 1
     return r2
 
 
 def main():
     try:
         km_x, price_y = open_database()
+        assert max(km_x) - min(km_x) != 0, "An error ocurred \
+doing the calculations"
         thetas = get_thetas()
         y_predicted = thetas[0] + (thetas[1] * km_x)
         assert np.all(np.isfinite(y_predicted)), "An error ocurred \
