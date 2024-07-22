@@ -22,6 +22,16 @@ def set_regression_plot(thetas, km, price, object):
     object.legend()
 
 
+def open_file(theta0, theta1):
+    try:
+        file = open("result_thetas.txt", "w")
+        file.write(f"{theta0},{theta1}")
+        file.close()
+    except (FileNotFoundError, PermissionError):
+        raise AssertionError("An error ocurred trying to create/replace the \
+result_thetas.txt file!")
+
+
 def get_corrected_thetas(prev_thetas, Xmin, Xmax):
     Ymin = prev_thetas[0]
     Ymax = prev_thetas[0] + prev_thetas[1]
@@ -52,7 +62,7 @@ def get_coeficients(km_x, price_y, iter):
 
 def normalize_array(array):
     if (max(array) - min(array) == 0):
-        raise ZeroDivisionError("The data provided in the dataset is invalid.")
+        raise ZeroDivisionError("The data provided in the dataset is invalid!")
     temp = (array - min(array)) / (max(array) - min(array))
     return temp
 
@@ -63,21 +73,20 @@ def main():
         normalized_x = normalize_array(km_x)
         prev_thetas, cost_history = get_coeficients(km_x=normalized_x,
                                                     price_y=price_y, iter=1000)
+        corrected_thetas = get_corrected_thetas(prev_thetas, min(km_x),
+                                                max(km_x))
+        theta0 = corrected_thetas[0]
+        theta1 = corrected_thetas[1]
+        print(f"The value of theta0 is {theta0} \
+and the value of theta1 is {theta1}")
+        open_file(theta0=theta0, theta1=theta1)
     except (AssertionError, ZeroDivisionError) as e:
         print(e)
         exit(1)
-    corrected_thetas = get_corrected_thetas(prev_thetas, min(km_x), max(km_x))
-    theta0 = corrected_thetas[0]
-    theta1 = corrected_thetas[1]
-    print(f"The value of theta0 is {theta0} \
-and the value of theta1 is {theta1}")
     fig, graph_objects = (plt.subplots(1, 2, figsize=(13, 5)))
     fig.subplots_adjust(wspace=0.5)
     set_regression_plot(corrected_thetas, km_x, price_y, graph_objects[0])
     set_cost_plot(cost_history, 1000, graph_objects[1])
-    file = open("result_thetas.txt", "w")
-    file.write(f"{theta0},{theta1}")
-    file.close()
     plt.show()
 
 
