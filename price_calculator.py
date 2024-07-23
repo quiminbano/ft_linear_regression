@@ -24,7 +24,8 @@ calculation"
     except (ValueError, OverflowError, AssertionError) as e:
         print(e)
         exit(1)
-    print(f"The predicted value of price per mileage is {result}.")
+    print(f"The predicted value of price for a car, with {number} km as \
+mileage is {result}.")
 
 
 if __name__ == '__main__':
